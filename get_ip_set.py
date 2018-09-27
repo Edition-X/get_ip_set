@@ -2,17 +2,21 @@
 
 import boto3
 
-ipsetid = raw_input("Enter IP Set ID: ")
-client = boto3.client('waf')
-response = client.get_ip_set (
-    IPSetId=ipsetid, 
-)
+def getipset(ipsetid):
+    client = boto3.client('waf')
+    response = client.get_ip_set (
+        IPSetId=ipsetid, 
+    )
+    
+    output = ""
+    
+    for key in response["IPSet"]["IPSetDescriptors"]:
+       for value in key.iteritems():
+          if value[1] != "IPV4":
+             output += 'ip_set_descriptors {\n\ttype = "IPV4"\n\tvalue = "' + value[1] + '"\n}\n\n'
+    
+    return output
 
-file = ""
-
-for key in response["IPSet"]["IPSetDescriptors"]:
-   for value in key.iteritems():
-      if value[1] != "IPV4":
-         file += 'ip_set_descriptors {\n\ttype = "IPV4"\n\tvalue = "' + value[1] + '"\n}\n\n'
-
-print(file)
+if __name__ == "__main__":
+    ipsetid = raw_input("Enter IP Set ID: ")
+    print(getipset(ipsetid))
